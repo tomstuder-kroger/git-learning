@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Page Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Roboto', sans-serif; background: #f4f5f6; color: #1C1E1F; }
+
+    /* ── NAV ── */
+    nav {
+      background: #0D67B8;
+      display: flex;
+      align-items: center;
+      height: 52px;
+      padding: 0 16px;
+      gap: 0;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 500;
+      min-width: 220px;
+    }
+    .nav-logo svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 4px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #fff;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.15); }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto;
+    }
+    .nav-icon { color: #fff; cursor: pointer; display: flex; align-items: center; }
+    .nav-icon:hover { opacity: 0.8; }
+    .badge-wrap { position: relative; display: flex; align-items: center; }
+    .badge {
+      position: absolute;
+      top: -6px; right: -8px;
+      background: #E8392A;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 1px 5px;
+      line-height: 1.4;
+    }
+
+    /* ── MAIN ── */
+    main { padding: 24px; }
+    h1 { font-size: 20px; font-weight: 500; margin-bottom: 16px; color: #1C1E1F; }
+
+    /* ── TABLE CARD ── */
+    .card {
+      background: #fff;
+      border-radius: 4px;
+      border: 1px solid #BBBDC0;
+      overflow: hidden;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      gap: 8px;
+      border-bottom: 1px solid #BBBDC0;
+    }
+    .search-input {
+      flex: 1;
+      max-width: 320px;
+      height: 36px;
+      border: 1px solid #BBBDC0;
+      border-radius: 4px;
+      padding: 0 12px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      color: #1C1E1F;
+    }
+    .search-input:focus { outline: 2px solid #0D67B8; }
+    .btn {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 4px;
+      border: none;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: #0D67B8; color: #fff; }
+    .btn-primary:hover { background: #0a539a; }
+    .btn-outline { background: #fff; color: #0D67B8; border: 1px solid #0D67B8; }
+    .btn-outline:hover { background: #EEF4FB; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    thead { background: #F4F5F6; }
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 13px;
+      color: #1C1E1F;
+      border-bottom: 1px solid #BBBDC0;
+      white-space: nowrap;
+    }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { background: #e8e9ea; }
+    th .sort-icon { margin-left: 4px; opacity: 0.5; font-size: 11px; }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #E8E9EA;
+      color: #1C1E1F;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #F8F9FA; }
+
+    input[type="checkbox"] { cursor: pointer; accent-color: #0D67B8; }
+
+    .actions { display: flex; gap: 6px; align-items: center; }
+    .action-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      color: #555;
+    }
+    .action-btn:hover { background: #EEF4FB; color: #0D67B8; }
+    .action-btn.approve:hover { color: #2E7D32; background: #E8F5E9; }
+    .action-btn.reject:hover { color: #C62828; background: #FFEBEE; }
+
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .tag-pending   { background: #FFF8E1; color: #F57F17; }
+    .tag-approved  { background: #E8F5E9; color: #2E7D32; }
+    .tag-rejected  { background: #FFEBEE; color: #C62828; }
+    .tag-review    { background: #E3F2FD; color: #1565C0; }
+
+    /* ── PRODUCT CARD ── */
+    .product-card {
+      background: #fff;
+      border: 1px solid #BBBDC0;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .product-img-wrap {
+      width: 178px;
+      height: 178px;
+      flex-shrink: 0;
+      background: #F4F5F6;
+      border: 1px solid #E8E9EA;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .product-img-wrap img {
+      max-width: 121px;
+      max-height: 151px;
+      object-fit: contain;
+    }
+    .product-img-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #BBBDC0;
+    }
+    .product-info { display: flex; flex-direction: column; gap: 6px; }
+    .product-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 40px;
+      color: #1C1E1F;
+    }
+    .product-subcopy {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      color: #1C1E1F;
+    }
+    .product-size {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+      color: #555;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid #BBBDC0;
+      font-size: 13px;
+      color: #555;
+    }
+    .page-btn {
+      width: 32px; height: 32px;
+      border: 1px solid #BBBDC0;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+    .page-btn:hover { background: #EEF4FB; border-color: #0D67B8; color: #0D67B8; }
+    .page-btn.active { background: #0D67B8; color: #fff; border-color: #0D67B8; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <!-- Kroger K icon simplified -->
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+      <rect width="36" height="36" rx="4" fill="rgba(255,255,255,0.15)"/>
+      <text x="9" y="25" font-family="Roboto" font-weight="700" font-size="18" fill="white">K</text>
+    </svg>
+    Application Title
+  </div>
+
+  <div class="nav-links">
+    <div class="nav-link">Menu 1 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></div>
+    <div class="nav-link">Menu 2 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></div>
+    <div class="nav-link">Menu 3 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></div>
+    <div class="nav-link">Menu 4</div>
+    <div class="nav-link">Menu 5 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg></div>
+  </div>
+
+  <div class="nav-right">
+    <!-- History -->
+    <div class="nav-icon" title="History">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7v3l4-4-4-4v3z"/></svg>
+    </div>
+    <!-- Help -->
+    <div class="nav-icon" title="Help">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+    </div>
+    <!-- User with badge -->
+    <div class="badge-wrap nav-icon" title="User">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      <span class="badge">9</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+  <h1>GTIN / Product Review</h1>
+
+  <!-- Product Detail Card -->
+  <div class="product-card">
+    <div class="product-img-wrap">
+      <div class="product-img-placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="#BBBDC0"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        <span style="font-size:12px;">Product Image</span>
+      </div>
+    </div>
+    <div class="product-info">
+      <div class="product-title">Private Select Muenster Cheese</div>
+      <div class="product-subcopy">Product Sub-copy goes here</div>
+      <div class="product-size">16 oz.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+      <input class="search-input" type="text" placeholder="Search by GTIN, description..." id="searchInput" />
+      <button class="btn btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h6v-2H3v2zm0-5h12v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        Filter
+      </button>
+      <button class="btn btn-primary" style="margin-left:auto;">
+        + Add Row
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll" /></th>
+            <th>Actions</th>
+            <th class="sortable">Status <span class="sort-icon">↕</span></th>
+            <th class="sortable">Department <span class="sort-icon">↕</span></th>
+            <th class="sortable">Commodity <span class="sort-icon">↕</span></th>
+            <th class="sortable">Sub Commodity <span class="sort-icon">↕</span></th>
+            <th class="sortable">GTIN <span class="sort-icon">↕</span></th>
+            <th class="sortable">Cost <span class="sort-icon">↕</span></th>
+            <th class="sortable">GTIN Margin <span class="sort-icon">↕</span></th>
+            <th>GTIN Description</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <span id="pageInfo">Rows 1–10 of 10</span>
+      <button class="page-btn">&#8249;</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">&#8250;</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  const rows = [
+    { status: "pending",  dept: "01 - GROCERY",   commodity: "001 - ALL OTHER",   sub: "0001 - PEACHES",        gtin: "0000000001234", cost: "$1.29", margin: "22%",  desc: "WEBR-HONEY GARL PEACH 15OZ" },
+    { status: "approved", dept: "01 - GROCERY",   commodity: "002 - BEVERAGES",   sub: "0012 - JUICE",          gtin: "0000000002345", cost: "$2.49", margin: "31%",  desc: "TROPICANA OJ NO PULP 52OZ" },
+    { status: "rejected", dept: "02 - PRODUCE",   commodity: "010 - FRESH FRUIT", sub: "0101 - BERRIES",        gtin: "0000000003456", cost: "$3.99", margin: "18%",  desc: "DRISCOLL STRAWBERRY 1LB" },
+    { status: "review",   dept: "03 - DELI",      commodity: "030 - DELI MEAT",   sub: "0301 - HAM",            gtin: "0000000004567", cost: "$4.89", margin: "27%",  desc: "BOARSHEAD HAM 8OZ SLICED" },
+    { status: "pending",  dept: "01 - GROCERY",   commodity: "004 - SNACKS",      sub: "0041 - CHIPS",          gtin: "0000000005678", cost: "$3.29", margin: "35%",  desc: "LAYS CLASSIC CHIPS 8OZ" },
+    { status: "approved", dept: "04 - BAKERY",    commodity: "040 - BREAD",       sub: "0401 - WHITE BREAD",    gtin: "0000000006789", cost: "$2.19", margin: "40%",  desc: "WONDER BREAD CLASSIC 20OZ" },
+    { status: "pending",  dept: "05 - DAIRY",     commodity: "050 - MILK",        sub: "0501 - WHOLE MILK",     gtin: "0000000007890", cost: "$3.79", margin: "12%",  desc: "KROGER WHOLE MILK 1GAL" },
+    { status: "review",   dept: "06 - FROZEN",    commodity: "060 - FROZEN VEG",  sub: "0601 - PEAS",           gtin: "0000000008901", cost: "$1.49", margin: "29%",  desc: "BIRDSEYE SWEET PEAS 12OZ" },
+    { status: "approved", dept: "01 - GROCERY",   commodity: "003 - CANNED GOOD", sub: "0031 - SOUP",           gtin: "0000000009012", cost: "$1.19", margin: "33%",  desc: "CAMPBELLS CHICKEN NOODLE" },
+    { status: "rejected", dept: "07 - MEAT",      commodity: "070 - BEEF",        sub: "0701 - GROUND BEEF",    gtin: "0000000000123", cost: "$6.99", margin: "15%",  desc: "80/20 GROUND BEEF 1LB" },
+  ];
+
+  const statusMap = {
+    pending:  { label: "Pending",  cls: "tag-pending" },
+    approved: { label: "Approved", cls: "tag-approved" },
+    rejected: { label: "Rejected", cls: "tag-rejected" },
+    review:   { label: "In Review",cls: "tag-review" },
+  };
+
+  function renderTable(data) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = data.map((r, i) => {
+      const s = statusMap[r.status];
+      return `<tr>
+        <td><input type="checkbox" class="row-cb" /></td>
+        <td>
+          <div class="actions">
+            <button class="action-btn approve" title="Approve">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+            </button>
+            <button class="action-btn reject" title="Reject">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+            </button>
+            <button class="action-btn" title="Edit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </button>
+          </div>
+        </td>
+        <td><span class="status-tag ${s.cls}">${s.label}</span></td>
+        <td>${r.dept}</td>
+        <td>${r.commodity}</td>
+        <td>${r.sub}</td>
+        <td style="font-family:monospace;">${r.gtin}</td>
+        <td>${r.cost}</td>
+        <td>${r.margin}</td>
+        <td>${r.desc}</td>
+      </tr>`;
+    }).join("");
+    document.getElementById("pageInfo").textContent = `Rows 1–${data.length} of ${data.length}`;
+  }
+
+  // Select all
+  document.getElementById("selectAll").addEventListener("change", function() {
+    document.querySelectorAll(".row-cb").forEach(cb => cb.checked = this.checked);
+  });
+
+  // Search
+  document.getElementById("searchInput").addEventListener("input", function() {
+    const q = this.value.toLowerCase();
+    const filtered = q ? rows.filter(r =>
+      r.gtin.includes(q) || r.desc.toLowerCase().includes(q) ||
+      r.dept.toLowerCase().includes(q) || r.commodity.toLowerCase().includes(q)
+    ) : rows;
+    renderTable(filtered);
+  });
+
+  // Nav links active
+  document.querySelectorAll(".nav-link").forEach(el => {
+    el.addEventListener("click", function() {
+      document.querySelectorAll(".nav-link").forEach(l => l.style.background = "");
+      this.style.background = "rgba(255,255,255,0.2)";
+    });
+  });
+
+  renderTable(rows);
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
+.product-page {
+  max-width: 1191px;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+  padding: 2rem 0;
+}
+
+.product-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Left side - Image */
+.image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image-wrapper {
+  width: 448px;
+  height: 448px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Right side - Product Details */
+.details-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.brand {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgb(74, 85, 101);
+  margin: 0;
+}
+
+.product-title {
+  font-family: 'Georgia', serif;
+  font-size: 48px;
+  font-weight: 400;
+  color: rgb(74, 85, 101);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.description {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: rgb(74, 85, 101);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.price {
+  font-family: 'Georgia', serif;
+  font-size: 30px;
+  font-weight: 400;
+  color: rgb(74, 85, 101);
+  margin: 0;
+}
+
+/* Selectors */
+.selector-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.selector-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(74, 85, 101);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.flavor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.flavor-button {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgb(74, 85, 101);
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.flavor-button:hover {
+  border-color: #ffa500;
+}
+
+.flavor-button.selected {
+  background-color: #fff7ed;
+  border-color: #ffa500;
+  color: #ea580c;
+}
+
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.size-button {
+  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.size-button:hover {
+  border-color: #ffa500;
+}
+
+.size-button.selected {
+  background-color: #fff7ed;
+  border-color: #ffa500;
+}
+
+.size-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgb(74, 85, 101);
+}
+
+.size-volume {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(107, 114, 128);
+}
+
+/* Cart Section */
+.cart-section {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+
+.quantity-button {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: rgb(74, 85, 101);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.quantity-button:hover {
+  color: #ffa500;
+}
+
+.quantity-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: rgb(74, 85, 101);
+  min-width: 2rem;
+  text-align: center;
+}
+
+.add-to-cart-button {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #ff8800;
+  border: none;
+  border-radius: 8px;
+  padding: 0.875rem 2rem;
+  cursor: pointer;
+  flex: 1;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.add-to-cart-button:hover {
+  background-color: #ff9500;
+}
+
+/* Nutritional Information */
+.nutrition-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.nutrition-heading {
+  font-family: 'Georgia', serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: rgb(74, 85, 101);
+  margin: 0 0 1.5rem 0;
+}
+
+.nutrition-facts {
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  padding: 0.5rem;
+  font-family: 'Inter', sans-serif;
+  max-width: 320px;
+}
+
+.nutrition-header h3 {
+  font-size: 30px;
+  font-weight: 900;
+  margin: 0 0 0.25rem 0;
+  color: #000000;
+}
+
+.serving-size {
+  font-size: 12px;
+  margin: 0.25rem 0;
+  color: #000000;
+}
+
+.servings-per-container {
+  font-size: 12px;
+  margin: 0.25rem 0;
+  color: #000000;
+}
+
+.thick-divider {
+  height: 8px;
+  background-color: #000000;
+  margin: 0.25rem 0;
+}
+
+.thin-divider {
+  height: 1px;
+  background-color: #000000;
+  margin: 0.25rem 0;
+}
+
+.calories-section {
+  padding: 0.25rem 0;
+}
+
+.amount-per-serving {
+  font-size: 10px;
+  font-weight: 700;
+  margin: 0;
+  color: #000000;
+}
+
+.calories-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.calories-label {
+  font-size: 22px;
+  font-weight: 900;
+  color: #000000;
+}
+
+.calories-value {
+  font-size: 36px;
+  font-weight: 900;
+  color: #000000;
+}
+
+.daily-value-header {
+  text-align: right;
+  font-size: 11px;
+  font-weight: 700;
+  margin: 0.25rem 0;
+  color: #000000;
+}
+
+.daily-value-header p {
+  margin: 0;
+}
+
+.nutrient-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+  font-size: 12px;
+  color: #000000;
+}
+
+.nutrient-row.indent {
+  padding-left: 1rem;
+}
+
+.nutrient-row.indent-2 {
+  padding-left: 2rem;
+}
+
+.nutrient-name {
+  color: #000000;
+}
+
+.nutrient-percent {
+  color: #000000;
+}
+
+.vitamin-section {
+  padding: 0.25rem 0;
+}
+
+.vitamin-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.125rem 0;
+  font-size: 11px;
+  color: #000000;
+}
+
+.footnote {
+  padding-top: 0.5rem;
+  font-size: 9px;
+  line-height: 1.4;
+  color: #000000;
+}
+
+.footnote p {
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .product-container {
+    grid-template-columns: 1fr;
+  }
+
+  .image-container {
+    order: 1;
+  }
+
+  .details-container {
+    order: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .size-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-section {
+    flex-direction: column;
+  }
+
+  .quantity-selector {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .add-to-cart-button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,41 @@
+.notification-container {
+  position: fixed;
+  top: 80px; /* Below the blue header */
+  right: 24px;
+  z-index: 1000;
+  max-width: 450px;
+  min-width: 350px;
+}
+
+.notification-container .kds-MessageGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-container kds-message {
+  animation: slideInRight 0.3s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notification-container {
+    top: 70px;
+    right: 16px;
+    left: 16px;
+    max-width: none;
+    width: auto;
+  }
+}

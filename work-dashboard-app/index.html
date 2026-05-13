@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Dashboard - Visualizations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Navigation -->
+        <header class="header">
+            <h1>Work Activity Dashboard</h1>
+            <nav class="nav-tabs">
+                <a href="index.html" class="nav-tab active">Dashboard</a>
+                <a href="table.html" class="nav-tab">Data Table</a>
+            </nav>
+        </header>
+
+        <!-- Filter Section -->
+        <section class="filter-section">
+            <div class="filter-group">
+                <label for="week-filter">Filter by Week:</label>
+                <select id="week-filter" class="week-select">
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Total Tasks</span>
+                    <span class="stat-value" id="total-tasks">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Hours</span>
+                    <span class="stat-value" id="total-hours">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Category Pie Chart -->
+            <div class="chart-container">
+                <h2>Time Allocation by Work Category</h2>
+                <div class="chart-wrapper">
+                    <canvas id="categoryPieChart" role="img" aria-label="Pie chart showing time allocation across work categories"></canvas>
+                </div>
+            </div>
+
+            <!-- Impact Indicators -->
+            <div class="chart-container">
+                <h2>Impact Distribution by Portfolio</h2>
+                <div id="impactIndicators" class="impact-grid" role="region" aria-label="Impact level indicators for each portfolio"></div>
+            </div>
+
+            <!-- Portfolio Bar Chart -->
+            <div class="chart-container full-width">
+                <h2>Portfolio Performance Over Time</h2>
+                <div class="chart-wrapper">
+                    <canvas id="portfolioBarChart" role="img" aria-label="Bar chart showing portfolio time allocation over weeks"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error hidden">
+            <p>Error loading data. Please check that ts_work_data.csv is in the correct location.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/csvParser.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

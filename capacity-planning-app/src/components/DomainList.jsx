@@ -1,0 +1,48 @@
+import React from 'react';
+import { KdsButton } from 'react-mx-web-components';
+import { v4 as uuidv4 } from 'uuid';
+import { useCapacity } from '../context/CapacityContext';
+import DomainForm from './DomainForm';
+import EmptyState from './EmptyState';
+
+const DomainList = () => {
+  const { activeIC, updateIC } = useCapacity();
+
+  if (!activeIC) return null;
+
+  const handleAddDomain = () => {
+    const newDomain = {
+      id: uuidv4(),
+      name: '',
+      projects: []
+    };
+    updateIC(activeIC.id, {
+      domains: [...activeIC.domains, newDomain]
+    });
+  };
+
+  return (
+    <div>
+      <h2 className="kds-Heading kds-Heading--s section-heading">Domains &amp; Planned Work</h2>
+
+      {activeIC.domains.length === 0 ? (
+        <div className="kds-Card kds-Card--m kds-card-section">
+          <EmptyState
+            title="No domains added yet"
+            subtitle='Click "+ Add Domain" below to start planning your work'
+          />
+        </div>
+      ) : (
+        activeIC.domains.map(domain => (
+          <DomainForm key={domain.id} domain={domain} />
+        ))
+      )}
+
+      <KdsButton kind="secondary" style={{ width: '100%' }} onClick={handleAddDomain}>
+        + Add Domain
+      </KdsButton>
+    </div>
+  );
+};
+
+export default DomainList;

@@ -1,0 +1,89 @@
+/* Chart containers and styling */
+
+.chart-container {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chart-container h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.chart-wrapper {
+  flex: 1;
+  position: relative;
+  min-height: 300px;
+}
+
+.chart-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+.chart-footer p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.chart-footer p strong {
+  color: var(--kds-color-brand-prominent, #0066cc);
+  font-weight: 600;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}
+
+.chart-breakdown {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.impact-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.impact-row:last-child {
+  border-bottom: none;
+}
+
+.impact-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.impact-value {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Responsive: stack on smaller screens */
+@media (max-width: 768px) {
+  .chart-breakdown {
+    grid-template-columns: 1fr;
+  }
+}

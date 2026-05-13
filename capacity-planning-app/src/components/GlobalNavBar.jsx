@@ -1,0 +1,39 @@
+import React from 'react';
+
+const krogerLogo = '/kroger-logo.svg';
+
+const GlobalNavBar = () => {
+  return (
+    <header style={{
+      backgroundColor: '#0F52A2',
+      height: '56px',
+      display: 'flex',
+      alignItems: 'center',
+      padding: '0 24px',
+      width: '100%',
+      boxSizing: 'border-box',
+    }}>
+      {/* Left side */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <img
+          src={krogerLogo}
+          alt="Kroger"
+          style={{ height: '33px', width: '60px', objectFit: 'contain' }}
+        />
+        <span style={{
+          fontFamily: 'Nunito, sans-serif',
+          fontSize: '20px',
+          fontWeight: 400,
+          lineHeight: '24px',
+          color: '#ffffff',
+          whiteSpace: 'nowrap',
+        }}>
+          PD Capacity Planner
+        </span>
+      </div>
+
+    </header>
+  );
+};
+
+export default GlobalNavBar;

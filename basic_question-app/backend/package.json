@@ -1,0 +1,16 @@
+{
+  "name": "icebreaker-backend",
+  "version": "1.0.0",
+  "description": "Backend API for icebreaker app",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "init-db": "node initDatabase.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sql.js": "^1.10.3"
+  }
+}

@@ -1,0 +1,15 @@
+# Claude context file (local only)
+CLAUDE.md
+
+# Backup files (local only)
+md-backups/
+
+# System files
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

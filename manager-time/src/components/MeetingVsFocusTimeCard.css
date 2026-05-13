@@ -1,0 +1,86 @@
+/* Meeting vs Focus Time Card Styling */
+
+.meeting-card {
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.meeting-card h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.meeting-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meeting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.meeting-row:last-child {
+  border-bottom: none;
+}
+
+.meeting-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  flex: 1;
+}
+
+.meeting-percent {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--kds-color-brand-prominent, #0066cc);
+  min-width: 50px;
+  text-align: right;
+}
+
+.meeting-hours {
+  font-size: 12px;
+  color: #999;
+  margin-left: 8px;
+  min-width: 60px;
+  text-align: right;
+}
+
+.meeting-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 12px 0;
+}
+
+.meeting-insight {
+  padding-top: 8px;
+}
+
+.insight-text {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: #999;
+  font-size: 14px;
+  margin: 0;
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Dashboard - Data Table</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Navigation -->
+        <header class="header">
+            <h1>Work Activity Dashboard</h1>
+            <nav class="nav-tabs">
+                <a href="index.html" class="nav-tab">Dashboard</a>
+                <a href="table.html" class="nav-tab active">Data Table</a>
+            </nav>
+        </header>
+
+        <!-- Table Controls -->
+        <section class="table-controls">
+            <div class="search-box">
+                <input type="text" id="global-search" placeholder="Search all columns..." class="search-input">
+                <button id="clear-filters" class="btn-secondary">Clear All Filters</button>
+            </div>
+            <div class="table-info">
+                <span id="showing-count">Showing <strong id="visible-rows">0</strong> of <strong id="total-rows">0</strong> rows</span>
+            </div>
+        </section>
+
+        <!-- Data Table -->
+        <div class="table-wrapper">
+            <table id="data-table" class="data-table" role="table">
+                <thead>
+                    <tr role="row">
+                        <th data-column="date" class="sortable" role="columnheader">
+                            Date
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by date">
+                        </th>
+                        <th data-column="tasks" class="sortable" role="columnheader">
+                            Tasks
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by tasks">
+                        </th>
+                        <th data-column="category" class="sortable" role="columnheader">
+                            Category
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by category">
+                        </th>
+                        <th data-column="time" class="sortable" role="columnheader">
+                            Time
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by time">
+                        </th>
+                        <th data-column="taskCode" class="sortable" role="columnheader">
+                            Task Code
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by task code">
+                        </th>
+                        <th data-column="portfolio" class="sortable" role="columnheader">
+                            Portfolio
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by portfolio">
+                        </th>
+                        <th data-column="impact" class="sortable" role="columnheader">
+                            Impact
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by impact">
+                        </th>
+                        <th data-column="roleExpectations" class="sortable" role="columnheader">
+                            Role Expectations
+                            <span class="sort-indicator"></span>
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by role expectations">
+                        </th>
+                        <th data-column="notes" role="columnheader">
+                            Notes
+                            <input type="text" class="column-filter" placeholder="Filter..." aria-label="Filter by notes">
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" role="rowgroup">
+                    <!-- Data rows will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-bar" id="pagination-bar">
+            <div class="pagination-controls">
+                <button class="page-btn" id="first-page" aria-label="First page">&#x23EE;</button>
+                <button class="page-btn" id="prev-page" aria-label="Previous page">&#x25C4;</button>
+                <div id="page-numbers" class="page-numbers"></div>
+                <button class="page-btn" id="next-page" aria-label="Next page">&#x25BA;</button>
+                <button class="page-btn" id="last-page" aria-label="Last page">&#x23ED;</button>
+                <div class="rows-per-page-control">
+                    <select id="rows-per-page" aria-label="Rows per page">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+            <span class="record-count" id="record-count">0 Record(s)</span>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error hidden">
+            <p>Error loading data. Please check that ts_work_data.csv is in the correct location.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/csvParser.js"></script>
+    <script src="js/table.js"></script>
+</body>
+</html>
