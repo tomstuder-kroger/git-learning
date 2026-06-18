@@ -1,3 +1,5 @@
+import { generateSupportSummary } from './supportNeeds';
+
 /**
  * Calculates total time off in weeks based on OKR period and time off days
  * @param {Object} params - Time off parameters
@@ -90,11 +92,29 @@ export function calculateTotalPTO(ptoInstances) {
     const diffMs = endDate - startDate;
     const daysDiff = Math.floor(diffMs / (24 * 60 * 60 * 1000)) + 1;
 
-    // Convert days to weeks using Math.ceil
-    const weeksForPto = Math.ceil(daysDiff / 7);
+    // Convert days to weeks (5 working days per week, matching methodology)
+    const weeksForPto = daysDiff / 5;
 
     return totalWeeks + weeksForPto;
   }, 0);
+}
+
+/**
+ * Formats a fractional weeks value (based on 5-day work week) as "X weeks Y days"
+ * @param {number} weeks - Total weeks as a decimal (e.g. 1.6)
+ * @returns {string} Human-readable string like "1 week 3 days", "2 weeks", "2 days"
+ */
+export function formatWeeksAndDays(weeks) {
+  const totalDays = Math.round(weeks * 5);
+  const w = Math.floor(totalDays / 5);
+  const d = totalDays % 5;
+
+  if (w === 0 && d === 0) return '0 days';
+
+  const weekPart = w > 0 ? `${w} ${w === 1 ? 'week' : 'weeks'}` : '';
+  const dayPart = d > 0 ? `${d} ${d === 1 ? 'day' : 'days'}` : '';
+
+  return [weekPart, dayPart].filter(Boolean).join(' ');
 }
 
 /**
@@ -280,6 +300,13 @@ export function generateSummary(ic, calculated) {
 
 ## Note for Team Discussion
 ${ic.icName || 'This IC'} has ${totalTimeOffWeeks.toFixed(1)} weeks of total time off this quarter, including ${timeOffDesc}. They are supporting ${ic.domains.length} domain(s) with ${totalProjects} planned project(s). At ${capacityUtilization.toFixed(0)}% utilization, ${ic.icName || 'this IC'} is ${capacityDesc}`;
+
+  const supportSummary = generateSupportSummary(ic);
+  if (supportSummary) {
+    output += `
+
+${supportSummary}`;
+  }
 
   return output;
 }

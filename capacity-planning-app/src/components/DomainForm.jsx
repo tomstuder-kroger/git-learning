@@ -4,6 +4,7 @@ import { MxModal, MxModalBody } from 'react-mx-web-components';
 import { v4 as uuidv4 } from 'uuid';
 import { useCapacity } from '../context/CapacityContext';
 import { getProjectWeeks } from '../utils/calculations';
+import SupportNeedsSelector from './SupportNeedsSelector';
 
 const WEEK_OPTIONS = [
   ...Array.from({ length: 13 }, (_, i) => ({
@@ -15,7 +16,7 @@ const WEEK_OPTIONS = [
 
 const DateField = ({ label, value, onChange }) => (
   <div className="project-field">
-    <label className="project-field-label">{label}</label>
+    <label className="kds-Label kds-Text--m" style={{ fontWeight: 700 }}>{label}</label>
     <input
       type="date"
       value={value || ''}
@@ -70,7 +71,7 @@ const ProjectRow = ({ project, onUpdate, onRemove }) => {
           onChange={(iso) => onUpdate(project.id, { startDate: iso })}
         />
         <div className="project-field">
-          <label className="project-field-label">Duration</label>
+          <label className="kds-Label kds-Text--m" style={{ fontWeight: 700 }}>Duration</label>
           <select
             value={weeksValue}
             onChange={(e) => handleWeeksChange(e.target.value)}
@@ -81,6 +82,10 @@ const ProjectRow = ({ project, onUpdate, onRemove }) => {
             ))}
           </select>
         </div>
+        <SupportNeedsSelector
+          value={project.supportNeeds || []}
+          onChange={(selected) => onUpdate(project.id, { supportNeeds: selected })}
+        />
         {project.weeksMode === 'custom' && (
           <DateField
             label="End Date"
@@ -133,7 +138,8 @@ const DomainForm = ({ domain }) => {
       startDate: null,
       weeksMode: 'fixed',
       weeks: 1,
-      customEndDate: null
+      customEndDate: null,
+      supportNeeds: []
     };
     updateDomain({ projects: [...(domain.projects || []), newProject] });
   };

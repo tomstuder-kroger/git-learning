@@ -6,14 +6,17 @@ import EmptyState from './EmptyState';
 import TeamMemberCard from './TeamMemberCard';
 import GanttChart from './GanttChart';
 import CreateMemberModal from './CreateMemberModal';
+import ImportMemberModal from './ImportMemberModal';
 
 const currentPeriod = getCurrentFiscalPeriod();
 
 const TeamDashboard = ({ onSelectMember }) => {
   const { ics, teamName, updateTeamName, calculateResults, reorderICs } = useCapacity();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [view, setView] = useState('cards');
+  const [ganttQuarter, setGanttQuarter] = useState(null);
   const [editingTeamName, setEditingTeamName] = useState(false);
   const [draggedId, setDraggedId] = useState(null);
   const [dragOverId, setDragOverId] = useState(null);
@@ -61,6 +64,9 @@ const TeamDashboard = ({ onSelectMember }) => {
               {isEditMode ? 'Done' : 'Edit'}
             </KdsButton>
           )}
+          <KdsButton kind="secondary" onClick={() => setIsImportModalOpen(true)}>
+            Import Team Member
+          </KdsButton>
           <KdsButton kind="primary" onClick={() => setIsCreateModalOpen(true)}>
             + Add Team Member
           </KdsButton>
@@ -68,7 +74,7 @@ const TeamDashboard = ({ onSelectMember }) => {
       </div>
 
       {/* Team summary card */}
-      <div className="kds-Card kds-Card--m kds-card-section" style={{ marginBottom: '1.5rem', padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, #e8f0fe 0%, #dbeafe 100%)', border: '1.5px solid #0F52A2', boxShadow: '0 2px 8px rgba(15, 82, 162, 0.15)' }}>
+      <div className="kds-Card kds-Card--m kds-card-section" style={{ marginBottom: '1.5rem', padding: '1.25rem 1.5rem', background: 'rgb(239, 247, 253)', border: '1px solid rgb(15, 82, 162)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             {editingTeamName || isEditMode ? (
@@ -128,21 +134,36 @@ const TeamDashboard = ({ onSelectMember }) => {
 
       {ics.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <div className="view-toggle">
-            <button
-              className={`view-toggle-btn${view === 'cards' ? ' view-toggle-btn--active' : ''}`}
-              onClick={() => { setView('cards'); setIsEditMode(false); }}
-              title="Card view"
-            >
-              <KdsIconCardView size="s" />
-            </button>
-            <button
-              className={`view-toggle-btn${view === 'gantt' ? ' view-toggle-btn--active' : ''}`}
-              onClick={() => { setView('gantt'); setIsEditMode(false); }}
-              title="Gantt view"
-            >
-              <KdsIconGanttChart size="s" />
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="view-toggle">
+              <button
+                className={`view-toggle-btn${view === 'cards' ? ' view-toggle-btn--active' : ''}`}
+                onClick={() => { setView('cards'); setIsEditMode(false); }}
+                title="Card view"
+              >
+                <KdsIconCardView size="s" />
+              </button>
+              <button
+                className={`view-toggle-btn${view === 'gantt' ? ' view-toggle-btn--active' : ''}`}
+                onClick={() => { setView('gantt'); setIsEditMode(false); }}
+                title="Gantt view"
+              >
+                <KdsIconGanttChart size="s" />
+              </button>
+            </div>
+            {view === 'gantt' && (
+              <div className="view-toggle">
+                {[null, 'Q1', 'Q2', 'Q3', 'Q4'].map((q) => (
+                  <button
+                    key={q ?? 'all'}
+                    className={`view-toggle-btn${ganttQuarter === q ? ' view-toggle-btn--active' : ''}`}
+                    onClick={() => setGanttQuarter(q)}
+                  >
+                    {q ?? 'All'}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -153,7 +174,7 @@ const TeamDashboard = ({ onSelectMember }) => {
           subtitle="Add your first team member to get started"
         />
       ) : view === 'gantt' ? (
-        <GanttChart />
+        <GanttChart quarterFilter={ganttQuarter} />
       ) : (
         <div className="team-grid">
           {ics.map((ic) => (
@@ -177,6 +198,11 @@ const TeamDashboard = ({ onSelectMember }) => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreated={onSelectMember}
+      />
+
+      <ImportMemberModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
       />
     </div>
   );

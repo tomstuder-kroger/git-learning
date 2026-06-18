@@ -1,30 +1,28 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useCapacity } from '../context/CapacityContext';
-import { getCurrentFiscalPeriod, getQuarterStartDate, getQuarterWeeks } from '../utils/fiscalCalendar';
+import { getCurrentFiscalPeriod, getQuarterStartDate, getQuarterWeeks, getQuarterPeriods } from '../utils/fiscalCalendar';
 import { getProjectWeeks } from '../utils/calculations';
 
-const DOMAIN_COLORS = [
-  '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
-  '#ef4444', '#06b6d4', '#84cc16', '#f97316',
-];
+// One hue per person — spread around the color wheel
+const PERSON_HUES = [217, 158, 43, 271, 5, 185, 82, 316, 24, 340];
+
+// Lightness steps per domain — darker first, progressively lighter
+const DOMAIN_LIGHTNESS = [38, 50, 62, 70];
+
+function getDomainColor(personHue, domainIndex) {
+  const L = DOMAIN_LIGHTNESS[Math.min(domainIndex, DOMAIN_LIGHTNESS.length - 1)];
+  return `hsl(${personHue}, 65%, ${L}%)`;
+}
+
+function getDomainTextColor(domainIndex) {
+  const L = DOMAIN_LIGHTNESS[Math.min(domainIndex, DOMAIN_LIGHTNESS.length - 1)];
+  return L >= 55 ? '#1f2937' : 'white';
+}
 
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
 
-function getPeriodsForQuarter(quarter, totalWeeks) {
-  const qIndex = { Q1: 0, Q2: 1, Q3: 2, Q4: 3 }[quarter] ?? 0;
-  const firstPeriod = qIndex * 3 + 1;
-  const base = [
-    { name: `P${firstPeriod}`, weeks: 4 },
-    { name: `P${firstPeriod + 1}`, weeks: 5 },
-    { name: `P${firstPeriod + 2}`, weeks: 4 },
-  ];
-  if (quarter === 'Q4' && totalWeeks > 13) {
-    base.push({ name: 'P13', weeks: totalWeeks - 13 });
-  }
-  return base;
-}
 
-const GanttBar = ({ project, domainColor, fyStart, totalWeeks }) => {
+const GanttBar = ({ project, domainColor, textColor, fyStart, totalWeeks }) => {
   const weeks = getProjectWeeks(project);
   if (weeks === 0) return null;
 
@@ -58,7 +56,7 @@ const GanttBar = ({ project, domainColor, fyStart, totalWeeks }) => {
       }}
       title={tooltip}
     >
-      <span className="gantt-bar-label">{label}</span>
+      <span className="gantt-bar-label" style={{ color: textColor }}>{label}</span>
     </div>
   );
 };
@@ -104,7 +102,9 @@ const GanttPTOBar = ({ pto, fyStart, totalWeeks }) => {
   );
 };
 
-const GanttMemberSection = ({ ic, fyStart, totalWeeks }) => {
+const GanttMemberSection = ({ ic, icIndex, fyStart, totalWeeks }) => {
+  const personHue = PERSON_HUES[icIndex % PERSON_HUES.length];
+  const personBaseColor = `hsl(${personHue}, 65%, 38%)`;
   const rows = [];
   ic.domains.forEach((domain, di) => {
     const validProjects = (domain.projects || []).filter(p => getProjectWeeks(p) > 0);
@@ -119,9 +119,9 @@ const GanttMemberSection = ({ ic, fyStart, totalWeeks }) => {
   const hasPTO = ptoInstances.length > 0;
 
   return (
-    <div className="gantt-member-section">
+    <div className="gantt-member-section" style={{ borderLeft: `4px solid ${personBaseColor}` }}>
       <div className="gantt-label-col gantt-sticky-left">
-        <div className="gantt-member-name">{ic.icName || 'Unnamed'}</div>
+        <div className="gantt-member-name" style={{ color: personBaseColor }}>{ic.icName || 'Unnamed'}</div>
         {ic.icRole && <div className="gantt-member-role">{ic.icRole}</div>}
       </div>
 
@@ -160,7 +160,8 @@ const GanttMemberSection = ({ ic, fyStart, totalWeeks }) => {
               <div className="gantt-bars-track">
                 <GanttBar
                   project={project}
-                  domainColor={DOMAIN_COLORS[domainIndex % DOMAIN_COLORS.length]}
+                  domainColor={getDomainColor(personHue, domainIndex)}
+                  textColor={getDomainTextColor(domainIndex)}
                   fyStart={fyStart}
                   totalWeeks={totalWeeks}
                 />
@@ -173,8 +174,21 @@ const GanttMemberSection = ({ ic, fyStart, totalWeeks }) => {
   );
 };
 
-const GanttChart = () => {
+const STICKY_WIDTH = 230; // 150px label col + 80px domain col
+
+const GanttChart = ({ quarterFilter = null }) => {
   const { ics } = useCapacity();
+  const wrapperRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const ro = new ResizeObserver(entries => {
+      setContainerWidth(entries[0].contentRect.width);
+    });
+    ro.observe(wrapperRef.current);
+    return () => ro.disconnect();
+  }, []);
   const currentPeriod = getCurrentFiscalPeriod();
 
   if (!currentPeriod) {
@@ -195,15 +209,24 @@ const GanttChart = () => {
     const actualWeeks = nextQ
       ? (nextQ.startDate - qData.startDate) / MS_PER_WEEK
       : qData.nominalWeeks;
-    const rawPeriods = getPeriodsForQuarter(qData.quarter, qData.nominalWeeks);
-    const scale = actualWeeks / qData.nominalWeeks;
+    const rawPeriods = getQuarterPeriods(fiscalYear, qData.quarter);
+    const periodSum = rawPeriods.reduce((s, p) => s + p.weeks, 0);
+    const scale = periodSum > 0 ? actualWeeks / periodSum : 1;
     const periods = rawPeriods.map(p => ({ ...p, weeks: p.weeks * scale }));
     return { ...qData, weeks: actualWeeks, periods };
   });
 
-  const fyStart = allQuarters[0].startDate;
-  const totalWeeks = allQuarters.reduce((sum, q) => sum + q.weeks, 0);
-  const allPeriods = allQuarters.flatMap(q => q.periods);
+  const displayedQuarters = quarterFilter
+    ? allQuarters.filter(q => q.quarter === quarterFilter)
+    : allQuarters;
+
+  const fyStart = displayedQuarters[0].startDate;
+  const totalWeeks = displayedQuarters.reduce((sum, q) => sum + q.weeks, 0);
+  const allPeriods = displayedQuarters.flatMap(q => q.periods);
+
+  const weekWidth = quarterFilter && containerWidth > 0
+    ? Math.max(40, (containerWidth - STICKY_WIDTH) / totalWeeks)
+    : 40;
 
   const today = new Date();
   const todayWeekOffset = (today - fyStart) / MS_PER_WEEK;
@@ -212,14 +235,15 @@ const GanttChart = () => {
 
   const chartStyle = {
     '--gantt-total-weeks': totalWeeks,
+    '--gantt-week-width': `${weekWidth}px`,
     '--today-pct': todayInRange ? `${todayPct}%` : '-9999px',
   };
 
-  // Pixel offsets for Q2/Q3/Q4 boundary lines: 230px sticky cols + cumulative weeks at 40px each
+  // Pixel offsets for quarter boundary lines: sticky cols + cumulative weeks
   let cumWeeks = 0;
-  const quarterBoundaryPx = allQuarters.slice(0, -1).map(q => {
+  const quarterBoundaryPx = displayedQuarters.slice(0, -1).map(q => {
     cumWeeks += q.weeks;
-    return 230 + cumWeeks * 40;
+    return STICKY_WIDTH + cumWeeks * weekWidth;
   });
 
   if (ics.length === 0) {
@@ -227,7 +251,7 @@ const GanttChart = () => {
   }
 
   return (
-    <div className="gantt-wrapper">
+    <div className="gantt-wrapper" ref={wrapperRef}>
       <div className="gantt-chart" style={chartStyle}>
 
         {/* Quarter header row */}
@@ -237,11 +261,11 @@ const GanttChart = () => {
           </div>
           <div className="gantt-domain-col gantt-sticky-domain gantt-quarter-label-cell" />
           <div className="gantt-flex-track">
-            {allQuarters.map(q => (
+            {displayedQuarters.map(q => (
               <div
                 key={q.quarter}
                 className={`gantt-quarter-cell${q.isCurrent ? ' gantt-quarter-cell--current' : ''}`}
-                style={{ width: q.weeks * 40 }}
+                style={{ width: q.weeks * weekWidth }}
               >
                 {q.quarter}
               </div>
@@ -255,7 +279,7 @@ const GanttChart = () => {
           <div className="gantt-domain-col gantt-sticky-domain" />
           <div className="gantt-period-track">
             {allPeriods.map(p => (
-              <div key={p.name} className="gantt-period-cell" style={{ width: p.weeks * 40 }}>
+              <div key={p.name} className="gantt-period-cell" style={{ width: p.weeks * weekWidth }}>
                 {p.name}
               </div>
             ))}
@@ -285,10 +309,11 @@ const GanttChart = () => {
         </div>
 
         {/* IC rows */}
-        {ics.map(ic => (
+        {ics.map((ic, icIndex) => (
           <GanttMemberSection
             key={ic.id}
             ic={ic}
+            icIndex={icIndex}
             fyStart={fyStart}
             totalWeeks={totalWeeks}
           />

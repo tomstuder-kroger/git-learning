@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { KdsButton, KdsTag, KdsMessage, KdsIconEye } from 'react-mx-web-components';
 import { useCapacity } from '../context/CapacityContext';
 import FormattedOutput from './FormattedOutput';
+import SupportNeedsDashboard from './SupportNeedsDashboard';
 
 const CapacityDashboard = () => {
   const { activeIC, calculateResults } = useCapacity();
@@ -28,14 +29,13 @@ const CapacityDashboard = () => {
   } = calculated;
 
   const getStatusColor = () => {
+    if (capacityUtilization === 0) return '#9ca3af';
     if (status === 'over') return '#d32f2f';
-    if (status === 'fully') return '#ed6c02';
     return '#2e7d32';
   };
 
   const getStatusKind = () => {
     if (status === 'over') return 'negative';
-    if (status === 'fully') return 'callout';
     return 'positive';
   };
 
@@ -114,6 +114,8 @@ const CapacityDashboard = () => {
           <KdsIconEye /> View Summary
         </KdsButton>
       </div>
+
+      <SupportNeedsDashboard />
 
       <FormattedOutput open={summaryOpen} onClose={() => setSummaryOpen(false)} />
     </>
