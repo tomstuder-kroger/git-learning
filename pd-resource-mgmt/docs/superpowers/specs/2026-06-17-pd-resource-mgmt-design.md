@@ -936,7 +936,7 @@ calculateTotalROI()
 - lodash: 4.17.21 (optional, for utilities)
 
 ### Charts
-- recharts: ^2.x (exact version TBD)
+- recharts: ^2.12.0
 
 ### Build Tools
 - @craco/craco: ^7.1.0
