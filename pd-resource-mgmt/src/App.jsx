@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ResourceProvider, useResource } from './context/ResourceContext';
 import GlobalNavBar from './components/GlobalNavBar';
-import DesignerCard from './components/DesignerCard';
+import DesignerGrid from './components/DesignerGrid';
 import './App.css';
 
 function AppContent() {
-  const { designers } = useResource();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [selectedDesigner, setSelectedDesigner] = useState(null);
+  const { currentView } = useResource();
 
   return (
     <div className="app-shell">
-      <GlobalNavBar onSettingsClick={() => console.log('Settings clicked')} />
+      <GlobalNavBar onSettingsClick={() => setSettingsOpen(true)} />
 
       <div className="app-container">
-        <h2 style={{ marginBottom: '1rem' }}>Designer Card Test</h2>
-        <div className="designer-grid">
-          {designers.slice(0, 3).map(designer => (
-            <DesignerCard
-              key={designer.id}
-              designer={designer}
-              onClick={() => console.log('Clicked:', designer.name)}
-            />
-          ))}
-        </div>
+        {currentView === 'individual' && (
+          <DesignerGrid
+            onDesignerClick={(designer) => setSelectedDesigner(designer)}
+            onAddClick={() => console.log('Add designer')}
+          />
+        )}
+
+        {currentView === 'summary' && (
+          <div className="kds-Card kds-Card--m kds-card-section">
+            <h2>Team Summary</h2>
+            <p>Coming in next tasks</p>
+          </div>
+        )}
       </div>
     </div>
   );
