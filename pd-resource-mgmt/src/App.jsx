@@ -2,12 +2,29 @@ import React, { useState } from 'react';
 import { ResourceProvider, useResource } from './context/ResourceContext';
 import GlobalNavBar from './components/GlobalNavBar';
 import DesignerGrid from './components/DesignerGrid';
+import DesignerEditModal from './components/DesignerEditModal';
 import './App.css';
 
 function AppContent() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedDesigner, setSelectedDesigner] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const { currentView } = useResource();
+
+  const handleDesignerClick = (designer) => {
+    setSelectedDesigner(designer);
+    setEditModalOpen(true);
+  };
+
+  const handleAddClick = () => {
+    setSelectedDesigner(null);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditModalOpen(false);
+    setSelectedDesigner(null);
+  };
 
   return (
     <div className="app-shell">
@@ -16,8 +33,8 @@ function AppContent() {
       <div className="app-container">
         {currentView === 'individual' && (
           <DesignerGrid
-            onDesignerClick={(designer) => setSelectedDesigner(designer)}
-            onAddClick={() => console.log('Add designer')}
+            onDesignerClick={handleDesignerClick}
+            onAddClick={handleAddClick}
           />
         )}
 
@@ -28,6 +45,12 @@ function AppContent() {
           </div>
         )}
       </div>
+
+      <DesignerEditModal
+        designer={selectedDesigner}
+        isOpen={editModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
