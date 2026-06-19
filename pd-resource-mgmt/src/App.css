@@ -64,3 +64,12 @@ body {
   display: flex;
   gap: 0.5rem;
 }
+
+.designer-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+
+.designer-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}

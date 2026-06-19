@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
-import { ResourceProvider } from './context/ResourceContext';
+import React from 'react';
+import { ResourceProvider, useResource } from './context/ResourceContext';
 import GlobalNavBar from './components/GlobalNavBar';
+import DesignerCard from './components/DesignerCard';
 import './App.css';
 
 function AppContent() {
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { designers } = useResource();
 
   return (
     <div className="app-shell">
-      <GlobalNavBar onSettingsClick={() => setSettingsOpen(true)} />
+      <GlobalNavBar onSettingsClick={() => console.log('Settings clicked')} />
 
       <div className="app-container">
-        <div className="kds-Card kds-Card--m kds-card-section">
-          <h2>Placeholder - Views coming next</h2>
-          <p>Navigation is working. Individual Designers and Team Summary pages will be implemented in subsequent tasks.</p>
+        <h2 style={{ marginBottom: '1rem' }}>Designer Card Test</h2>
+        <div className="designer-grid">
+          {designers.slice(0, 3).map(designer => (
+            <DesignerCard
+              key={designer.id}
+              designer={designer}
+              onClick={() => console.log('Clicked:', designer.name)}
+            />
+          ))}
         </div>
       </div>
     </div>
