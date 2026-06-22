@@ -279,3 +279,331 @@ describe('calculateTeamMetrics', () => {
     expect(result.incompleteTeamsCount).toBe(1);
   });
 });
+
+describe('calculateCapacityByLevel', () => {
+  it('should group capacity by designer level', () => {
+    const designers = [
+      {
+        id: 'd1',
+        level: 'APD',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      },
+      {
+        id: 'd2',
+        level: 'APD',
+        allocations: [{ productTeamId: 't2', percentage: 80 }]
+      },
+      {
+        id: 'd3',
+        level: 'PD',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      }
+    ];
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculateCapacityByLevel(designers, capacitySettings);
+
+    expect(result).toHaveLength(3);
+
+    const apdLevel = result.find(r => r.level === 'APD');
+    expect(apdLevel.available).toBe(3680);  // 2 designers × 1840 hours
+    expect(apdLevel.allocated).toBe(3312);  // (100% + 80%) × 1840
+    expect(apdLevel.unallocated).toBe(368);
+
+    const pdLevel = result.find(r => r.level === 'PD');
+    expect(pdLevel.available).toBe(1840);
+    expect(pdLevel.allocated).toBe(1840);
+    expect(pdLevel.unallocated).toBe(0);
+
+    const spdLevel = result.find(r => r.level === 'SPD');
+    expect(spdLevel.available).toBe(0);
+    expect(spdLevel.allocated).toBe(0);
+    expect(spdLevel.unallocated).toBe(0);
+  });
+});
+
+describe('calculateTeamCostAndOutcomes', () => {
+  it('should calculate monthly cost and outcomes per team', () => {
+    const designers = [
+      {
+        id: 'd1',
+        level: 'PD',
+        allocations: [
+          { productTeamId: 't1', percentage: 50 },
+          { productTeamId: 't2', percentage: 50 }
+        ]
+      },
+      {
+        id: 'd2',
+        level: 'SPD',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      }
+    ];
+
+    const productTeams = [
+      { id: 't1', name: 'Team 1', portfolioId: 'p1' },
+      { id: 't2', name: 'Team 2', portfolioId: 'p2' }
+    ];
+
+    const portfolios = [
+      { id: 'p1', name: 'Portfolio A' },
+      { id: 'p2', name: 'Portfolio B' }
+    ];
+
+    const outcomes = {
+      't1': 500000,
+      't2': null
+    };
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculateTeamCostAndOutcomes(
+      productTeams,
+      designers,
+      outcomes,
+      capacitySettings,
+      portfolios
+    );
+
+    expect(result).toHaveLength(2);
+
+    const team1 = result.find(t => t.teamId === 't1');
+    expect(team1.teamName).toBe('Team 1');
+    expect(team1.portfolioName).toBe('Portfolio A');
+    expect(team1.monthlyCost).toBeCloseTo(23000 * 0.5 + 27600, 0);  // 50% PD + 100% SPD
+    expect(team1.outcomesValue).toBe(500000);
+    expect(team1.designerCount).toBe(2);
+
+    const team2 = result.find(t => t.teamId === 't2');
+    expect(team2.monthlyCost).toBeCloseTo(23000 * 0.5, 0);  // 50% PD
+    expect(team2.outcomesValue).toBeNull();
+    expect(team2.designerCount).toBe(1);
+  });
+});
+
+describe('calculatePortfolioROI', () => {
+  it('should calculate ROI per portfolio', () => {
+    const portfolios = [
+      { id: 'p1', name: 'Portfolio A' },
+      { id: 'p2', name: 'Portfolio B' }
+    ];
+
+    const productTeams = [
+      { id: 't1', name: 'Team 1', portfolioId: 'p1' },
+      { id: 't2', name: 'Team 2', portfolioId: 'p1' },
+      { id: 't3', name: 'Team 3', portfolioId: 'p2' }
+    ];
+
+    const designers = [
+      {
+        id: 'd1',
+        level: 'PD',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      },
+      {
+        id: 'd2',
+        level: 'PD',
+        allocations: [{ productTeamId: 't2', percentage: 100 }]
+      },
+      {
+        id: 'd3',
+        level: 'SPD',
+        allocations: [{ productTeamId: 't3', percentage: 100 }]
+      }
+    ];
+
+    const outcomes = {
+      't1': 300000,
+      't2': 400000,
+      't3': null  // Incomplete
+    };
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculatePortfolioROI(
+      portfolios,
+      productTeams,
+      designers,
+      outcomes,
+      capacitySettings
+    );
+
+    expect(result).toHaveLength(2);
+
+    const portfolioA = result.find(p => p.portfolioId === 'p1');
+    expect(portfolioA.portfolioName).toBe('Portfolio A');
+    expect(portfolioA.monthlyCost).toBeCloseTo(23000 * 2, 0);  // 2 PDs
+    expect(portfolioA.outcomesValue).toBe(700000);
+    // ROI: (700000 / (23000 * 2 * 12)) * 100
+    expect(portfolioA.roi).toBeCloseTo((700000 / (23000 * 2 * 12)) * 100, 1);
+
+    const portfolioB = result.find(p => p.portfolioId === 'p2');
+    expect(portfolioB.outcomesValue).toBeNull();
+    expect(portfolioB.roi).toBeNull();
+  });
+});
+
+describe('calculateDesignersGroupedByLevel', () => {
+  it('should group designers by level with metrics', () => {
+    const designers = [
+      {
+        id: 'd1',
+        name: 'Designer 1',
+        level: 'APD',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      },
+      {
+        id: 'd2',
+        name: 'Designer 2',
+        level: 'PD',
+        allocations: [{ productTeamId: 't1', percentage: 80 }]
+      },
+      {
+        id: 'd3',
+        name: 'Designer 3',
+        level: 'PD',
+        allocations: [{ productTeamId: 't2', percentage: 100 }]
+      }
+    ];
+
+    const productTeams = [
+      { id: 't1', name: 'Team 1', portfolioId: 'p1' },
+      { id: 't2', name: 'Team 2', portfolioId: 'p1' }
+    ];
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculateDesignersGroupedByLevel(
+      designers,
+      productTeams,
+      capacitySettings
+    );
+
+    expect(result.APD.designers).toHaveLength(1);
+    expect(result.APD.designers[0].name).toBe('Designer 1');
+    expect(result.APD.totalCost).toBeCloseTo(19166.67, 1);  // APD: 125/hr * 1840 hours / 12
+    expect(result.APD.avgUtilization).toBe(100);
+
+    expect(result.PD.designers).toHaveLength(2);
+    expect(result.PD.avgUtilization).toBe(90);
+
+    expect(result.SPD.designers).toHaveLength(0);
+  });
+});
+
+describe('calculateDesignersGroupedByPortfolio', () => {
+  it('should group designers by portfolio with metrics', () => {
+    const designers = [
+      {
+        id: 'd1',
+        name: 'Designer 1',
+        level: 'PD',
+        allocations: [{ productTeamId: 't1', percentage: 50 }]
+      },
+      {
+        id: 'd2',
+        name: 'Designer 2',
+        level: 'SPD',
+        allocations: [
+          { productTeamId: 't1', percentage: 50 },
+          { productTeamId: 't2', percentage: 50 }
+        ]
+      }
+    ];
+
+    const productTeams = [
+      { id: 't1', name: 'Team 1', portfolioId: 'p1' },
+      { id: 't2', name: 'Team 2', portfolioId: 'p2' }
+    ];
+
+    const portfolios = [
+      { id: 'p1', name: 'Portfolio A' },
+      { id: 'p2', name: 'Portfolio B' }
+    ];
+
+    const outcomes = {
+      't1': 500000,
+      't2': 300000
+    };
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculateDesignersGroupedByPortfolio(
+      designers,
+      productTeams,
+      portfolios,
+      outcomes,
+      capacitySettings
+    );
+
+    expect(result['Portfolio A'].designers).toHaveLength(2);
+    // Portfolio A: 50% PD + 50% SPD = (23000 * 0.5) + (27600 * 0.5) = 11500 + 13800 = 25300/month
+    // Annual: 25300 * 12 = 303600
+    // ROI: (500000 / 303600) * 100 = 164.6...
+    expect(result['Portfolio A'].roi).toBeCloseTo((500000 / (25300 * 12)) * 100, 1);
+
+    expect(result['Portfolio B'].designers).toHaveLength(1);
+    expect(result['Portfolio B'].designers[0].name).toBe('Designer 2');
+  });
+});
