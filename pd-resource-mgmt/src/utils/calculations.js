@@ -1,3 +1,7 @@
+// Module-level constants
+const DESIGNER_LEVELS = ['APD', 'PD', 'SPD'];
+const MONTHS_PER_YEAR = 12;
+
 /**
  * Calculate available hours per year for a designer
  * Formula: (standardHoursPerWeek × weeksPerYear) - all adjustments
@@ -78,6 +82,60 @@ export function getUtilizationStatus(utilization) {
 }
 
 /**
+ * Calculate monthly cost for a team
+ * Sums the allocated monthly run rates for all designers assigned to the team
+ */
+function calculateTeamMonthlyCost(teamId, designers, capacitySettings) {
+  let monthlyCost = 0;
+
+  designers.forEach(designer => {
+    const allocation = designer.allocations.find(
+      a => a.productTeamId === teamId
+    );
+
+    if (allocation) {
+      const designerMonthlyRate = calculateMonthlyRunRate(
+        designer,
+        capacitySettings
+      );
+      monthlyCost += (designerMonthlyRate * allocation.percentage) / 100;
+    }
+  });
+
+  return monthlyCost;
+}
+
+/**
+ * Enrich a designer with calculated metrics and team names
+ */
+function enrichDesignerWithMetrics(designer, productTeams, capacitySettings) {
+  return {
+    ...designer,
+    monthlyRunRate: calculateMonthlyRunRate(designer, capacitySettings),
+    utilization: calculateUtilization(designer, capacitySettings),
+    allocationsWithTeamNames: designer.allocations.map(alloc => {
+      const team = productTeams.find(t => t.id === alloc.productTeamId);
+      return {
+        ...alloc,
+        teamName: team ? team.name : 'Unknown'
+      };
+    })
+  };
+}
+
+/**
+ * Calculate ROI percentage from monthly cost and outcomes value
+ * Returns null if cost is 0 or outcomes is null
+ */
+function calculateROI(monthlyCost, outcomesValue) {
+  if (outcomesValue === null || monthlyCost <= 0) {
+    return null;
+  }
+  const annualCost = monthlyCost * MONTHS_PER_YEAR;
+  return (outcomesValue / annualCost) * 100;
+}
+
+/**
  * Calculate aggregate team metrics
  */
 export function calculateTeamMetrics(
@@ -136,11 +194,7 @@ export function calculateTeamMetrics(
   }
 
   // Overall ROI (null if incomplete)
-  let overallROI = null;
-  if (totalOutcomesValue !== null && totalMonthlyRunRate > 0) {
-    const annualCost = totalMonthlyRunRate * 12;
-    overallROI = (totalOutcomesValue / annualCost) * 100;
-  }
+  const overallROI = calculateROI(totalMonthlyRunRate, totalOutcomesValue);
 
   return {
     totalMonthlyRunRate,
@@ -159,9 +213,7 @@ export function calculateTeamMetrics(
  * Calculate capacity by designer level
  */
 export function calculateCapacityByLevel(designers, capacitySettings) {
-  const levels = ['APD', 'PD', 'SPD'];
-
-  return levels.map(level => {
+  return DESIGNER_LEVELS.map(level => {
     const designersAtLevel = designers.filter(d => d.level === level);
 
     const available = designersAtLevel.reduce((sum, designer) => {
@@ -198,21 +250,13 @@ export function calculateTeamCostAndOutcomes(
     const portfolio = portfolios.find(p => p.id === team.portfolioId) || { name: 'Unknown' };
 
     // Calculate monthly cost for this team
-    let monthlyCost = 0;
+    const monthlyCost = calculateTeamMonthlyCost(team.id, designers, capacitySettings);
+
+    // Count designers allocated to this team
     let designerCount = 0;
-
     designers.forEach(designer => {
-      const allocation = designer.allocations.find(
-        a => a.productTeamId === team.id
-      );
-
-      if (allocation) {
+      if (designer.allocations.some(a => a.productTeamId === team.id)) {
         designerCount++;
-        const designerMonthlyRate = calculateMonthlyRunRate(
-          designer,
-          capacitySettings
-        );
-        monthlyCost += (designerMonthlyRate * allocation.percentage) / 100;
       }
     });
 
@@ -251,19 +295,7 @@ export function calculatePortfolioROI(
 
     teamsInPortfolio.forEach(team => {
       // Calculate team cost
-      designers.forEach(designer => {
-        const allocation = designer.allocations.find(
-          a => a.productTeamId === team.id
-        );
-
-        if (allocation) {
-          const designerMonthlyRate = calculateMonthlyRunRate(
-            designer,
-            capacitySettings
-          );
-          monthlyCost += (designerMonthlyRate * allocation.percentage) / 100;
-        }
-      });
+      monthlyCost += calculateTeamMonthlyCost(team.id, designers, capacitySettings);
 
       // Check outcomes
       if (outcomes[team.id] == null) {
@@ -279,10 +311,7 @@ export function calculatePortfolioROI(
 
     if (!hasIncompleteData) {
       outcomesValue = totalOutcomes;
-      if (monthlyCost > 0) {
-        const annualCost = monthlyCost * 12;
-        roi = (outcomesValue / annualCost) * 100;
-      }
+      roi = calculateROI(monthlyCost, outcomesValue);
     }
 
     return {
@@ -303,10 +332,9 @@ export function calculateDesignersGroupedByLevel(
   productTeams,
   capacitySettings
 ) {
-  const levels = ['APD', 'PD', 'SPD'];
   const result = {};
 
-  levels.forEach(level => {
+  DESIGNER_LEVELS.forEach(level => {
     const designersAtLevel = designers.filter(d => d.level === level);
 
     const totalCost = designersAtLevel.reduce((sum, designer) => {
@@ -320,18 +348,9 @@ export function calculateDesignersGroupedByLevel(
       : 0;
 
     // Enrich designers with full details
-    const enrichedDesigners = designersAtLevel.map(designer => ({
-      ...designer,
-      monthlyRunRate: calculateMonthlyRunRate(designer, capacitySettings),
-      utilization: calculateUtilization(designer, capacitySettings),
-      allocationsWithTeamNames: designer.allocations.map(alloc => {
-        const team = productTeams.find(t => t.id === alloc.productTeamId);
-        return {
-          ...alloc,
-          teamName: team ? team.name : 'Unknown'
-        };
-      })
-    }));
+    const enrichedDesigners = designersAtLevel.map(designer =>
+      enrichDesignerWithMetrics(designer, productTeams, capacitySettings)
+    );
 
     result[level] = {
       designers: enrichedDesigners,
@@ -375,15 +394,7 @@ export function calculateDesignersGroupedByPortfolio(
     let totalOutcomes = 0;
 
     teamsInPortfolio.forEach(team => {
-      designers.forEach(designer => {
-        const allocation = designer.allocations.find(
-          a => a.productTeamId === team.id
-        );
-        if (allocation) {
-          const rate = calculateMonthlyRunRate(designer, capacitySettings);
-          totalCost += (rate * allocation.percentage) / 100;
-        }
-      });
+      totalCost += calculateTeamMonthlyCost(team.id, designers, capacitySettings);
 
       if (outcomes[team.id] == null) {
         hasIncompleteData = true;
@@ -394,9 +405,8 @@ export function calculateDesignersGroupedByPortfolio(
 
     // Calculate ROI
     let roi = null;
-    if (!hasIncompleteData && totalCost > 0) {
-      const annualCost = totalCost * 12;
-      roi = (totalOutcomes / annualCost) * 100;
+    if (!hasIncompleteData) {
+      roi = calculateROI(totalCost, totalOutcomes);
     }
 
     // Calculate average utilization
@@ -407,18 +417,9 @@ export function calculateDesignersGroupedByPortfolio(
       : 0;
 
     // Enrich designers
-    const enrichedDesigners = designersInPortfolio.map(designer => ({
-      ...designer,
-      monthlyRunRate: calculateMonthlyRunRate(designer, capacitySettings),
-      utilization: calculateUtilization(designer, capacitySettings),
-      allocationsWithTeamNames: designer.allocations.map(alloc => {
-        const team = productTeams.find(t => t.id === alloc.productTeamId);
-        return {
-          ...alloc,
-          teamName: team ? team.name : 'Unknown'
-        };
-      })
-    }));
+    const enrichedDesigners = designersInPortfolio.map(designer =>
+      enrichDesignerWithMetrics(designer, productTeams, capacitySettings)
+    );
 
     result[portfolio.name] = {
       designers: enrichedDesigners,
