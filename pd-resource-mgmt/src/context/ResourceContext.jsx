@@ -23,7 +23,7 @@ export function ResourceProvider({ children }) {
         productTeams: stored.productTeams || [],
         portfolios: stored.portfolios || [],
         capacitySettings: stored.capacitySettings || {},
-        outcomes: stored.outcomes || { totalValue: 0 },
+        outcomes: stored.outcomes || {},
         currentView: 'individual',
         filterLevel: null,
         filterStatus: null,
@@ -35,6 +35,7 @@ export function ResourceProvider({ children }) {
     const initial = getInitialData();
     return {
       ...initial,
+      outcomes: {},
       currentView: 'individual',
       filterLevel: null,
       filterStatus: null,
@@ -164,10 +165,13 @@ export function ResourceProvider({ children }) {
     }));
   }, []);
 
-  const updateOutcomes = useCallback((outcomes) => {
+  const updateOutcomes = useCallback((teamId, value) => {
     setState(prev => ({
       ...prev,
-      outcomes: { ...prev.outcomes, ...outcomes }
+      outcomes: {
+        ...prev.outcomes,
+        [teamId]: value
+      }
     }));
   }, []);
 
@@ -215,7 +219,7 @@ export function ResourceProvider({ children }) {
       productTeams: data.productTeams || [],
       portfolios: data.portfolios || [],
       capacitySettings: data.capacitySettings || prev.capacitySettings,
-      outcomes: data.outcomes || { totalValue: 0 }
+      outcomes: data.outcomes || {}
     }));
   }, []);
 
