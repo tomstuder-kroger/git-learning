@@ -4,7 +4,13 @@ import {
   calculateUtilization,
   calculateMonthlyRunRate,
   getUtilizationColor,
-  getUtilizationStatus
+  getUtilizationStatus,
+  calculateTeamMetrics,
+  calculateCapacityByLevel,
+  calculateTeamCostAndOutcomes,
+  calculatePortfolioROI,
+  calculateDesignersGroupedByLevel,
+  calculateDesignersGroupedByPortfolio
 } from './calculations';
 
 describe('calculations', () => {
@@ -160,5 +166,116 @@ describe('calculations', () => {
       expect(getUtilizationStatus(101)).toBe('over');
       expect(getUtilizationStatus(150)).toBe('over');
     });
+  });
+});
+
+describe('calculateTeamMetrics', () => {
+  it('should calculate aggregate team metrics correctly', () => {
+    const designers = [
+      {
+        id: 'd1',
+        name: 'Designer 1',
+        level: 'PD',
+        employmentStatus: 'FTE',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      },
+      {
+        id: 'd2',
+        name: 'Designer 2',
+        level: 'SPD',
+        employmentStatus: 'FTE',
+        allocations: [{ productTeamId: 't2', percentage: 80 }]
+      }
+    ];
+
+    const productTeams = [
+      { id: 't1', name: 'Team 1', portfolioId: 'p1' },
+      { id: 't2', name: 'Team 2', portfolioId: 'p1' }
+    ];
+
+    const portfolios = [
+      { id: 'p1', name: 'Portfolio 1' }
+    ];
+
+    const outcomes = {
+      't1': 500000,
+      't2': 300000
+    };
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculateTeamMetrics(
+      designers,
+      productTeams,
+      portfolios,
+      outcomes,
+      capacitySettings
+    );
+
+    expect(result.totalMonthlyRunRate).toBeCloseTo(50600, 0);
+    expect(result.averageUtilization).toBe(90);
+    expect(result.totalOutcomesValue).toBe(800000);
+    expect(result.overallROI).toBeCloseTo(131.75, 1);
+    expect(result.totalHoursAvailable).toBe(3680);
+    expect(result.totalHoursAllocated).toBe(3312);
+    expect(result.headcountByLevel).toEqual({ APD: 0, PD: 1, SPD: 1 });
+    expect(result.averageRunRatePerDesigner).toBeCloseTo(25300, 0);
+    expect(result.incompleteTeamsCount).toBe(0);
+  });
+
+  it('should return null for outcomes/ROI when data incomplete', () => {
+    const designers = [
+      {
+        id: 'd1',
+        level: 'PD',
+        allocations: [{ productTeamId: 't1', percentage: 100 }]
+      }
+    ];
+
+    const productTeams = [
+      { id: 't1', name: 'Team 1', portfolioId: 'p1' }
+    ];
+
+    const portfolios = [{ id: 'p1', name: 'Portfolio 1' }];
+
+    const outcomes = {};  // No outcomes entered
+
+    const capacitySettings = {
+      standardHoursPerWeek: 40,
+      weeksPerYear: 52,
+      ptoHoursPerYear: 120,
+      holidaysHoursPerYear: 80,
+      ldHoursPerYear: 24,
+      okrPlanningHoursPerYear: 16,
+      ratesByLevel: {
+        APD: { actual: 100, blended: 125 },
+        PD: { actual: 120, blended: 150 },
+        SPD: { actual: 150, blended: 180 }
+      }
+    };
+
+    const result = calculateTeamMetrics(
+      designers,
+      productTeams,
+      portfolios,
+      outcomes,
+      capacitySettings
+    );
+
+    expect(result.totalOutcomesValue).toBeNull();
+    expect(result.overallROI).toBeNull();
+    expect(result.incompleteTeamsCount).toBe(1);
   });
 });
