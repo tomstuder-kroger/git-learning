@@ -4,6 +4,7 @@ import GlobalNavBar from './components/GlobalNavBar';
 import DesignerGrid from './components/DesignerGrid';
 import DesignerEditModal from './components/DesignerEditModal';
 import TeamMetricCards from './components/TeamMetricCards';
+import TeamSecondaryStats from './components/TeamSecondaryStats';
 import './App.css';
 
 function AppContent() {
@@ -48,6 +49,12 @@ function AppContent() {
               overallROI={83.3}
               incompleteTeamsCount={0}
               totalTeamsCount={10}
+            />
+            <TeamSecondaryStats
+              totalHoursAvailable={20240}
+              totalHoursAllocated={18400}
+              headcountByLevel={{ APD: 2, PD: 5, SPD: 4 }}
+              averageRunRatePerDesigner={18181}
             />
           </div>
         )}
